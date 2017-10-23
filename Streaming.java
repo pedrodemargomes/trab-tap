@@ -1,11 +1,9 @@
-import java.util.ArrayList;
-
 class Streaming {
 	static private Streaming streaming;
 	private Streaming(){
 	}
 	static public Streaming getInstance() {
-		if(streaming == NULL) {
+		if(streaming == null) {
 			streaming = new Streaming();
 		}
 		return streaming;
@@ -13,5 +11,5 @@ class Streaming {
 	String login;
 	String senha;
 	String plano;
-	DiretorioDeMusicas diretorioDeMusicas;
+	DiretorioDeMusicas diretorioDeMusicas = new DiretorioDeMusicas();
 }
