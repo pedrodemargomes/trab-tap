@@ -1,146 +1,155 @@
 import java.util.ArrayList;
 
+
 // +++++++++++++++++++++
 class Playlist {
 	String nome;
 	String estiloPrincipal;
 	String estiloSecundario;
 	ArrayList<Album> albuns = new ArrayList<Album>();
+	ArrayList<Playlist> playlists = new ArrayList<Playlist>();
 	
-	public void aceitarVisitor(PlaylistVisitor visitor) {
-        visitor.visitar(this);
+	public void add(Album componente) {
+			this.albuns.add(componente);
+    }
+    
+    public void add(Playlist componente) {
+			this.playlists.add(componente);
     }
 	
-	void add(Album album) {
-		albuns.add(album);
-	}
-	
-	void remove(Album album) {
-		albuns.remove(album);
-	}
+    public void remove(Album componente) {
+			this.albuns.remove(componente);
+    }
+    
+    public void remove(Playlist componente) {
+			this.playlists.remove(componente);
+    }
+    
+    public void aceitarVisitor(ConcreteVisitor visitor) {
+        visitor.visitar(this);
+    }
+    
 }
 
-class Album {
+class Album  {
 	String nome;
 	String nomeBanda;
 	String estilo;
 	ArrayList<Musica> musicas = new ArrayList<Musica>();
 	
-	public void aceitarVisitor(AlbumVisitor visitor) {
-        visitor.visitar(this);
+	public void add(Musica componente) {
+        this.musicas.add(componente);
     }
 	
-	void add(Musica musica) {
-		musicas.add(musica);
-	}
-	
-	void remove(Musica musica) {
-		musicas.remove(musica);
-	}
+    public void remove(Musica componente) {
+        this.musicas.remove(componente);
+    }
+    
+    public void aceitarVisitor(ConcreteVisitor visitor) {
+        visitor.visitar(this);
+    }
+    
 }
 
-class Musica {
+class Musica  {
 	String nome;
 	String estilo;
 	double duracaoMin;
 	
-	public void aceitarVisitor(MusicaVisitor visitor) {
+	public void aceitarVisitor(ConcreteVisitor visitor) {
         visitor.visitar(this);
     }
+	
 }
 // ++++++++++++++++++++++=
 
 //+++++++++++++++++++++++
 
-abstract class Visitor {
-	void visitar();
+interface Visitor {
+	void visitar(DiretorioDeMusicas diretorioDeMusicas);
+	void visitar(Playlist playlist);
+	void visitar(Album album);
+	void visitar(Musica musica);
 }
 
-class ConcreteVisitorAll extends Visitor {
-	void visitar(DiretorioDeMusicas diretorioDeMusicas) {
+class ConcreteVisitor implements Visitor {
+	public String estilo = null;
+	public boolean busca3min = false;
+	
+	public void visitar(DiretorioDeMusicas diretorioDeMusicas) {
 		for(int i = 0;i<diretorioDeMusicas.playlists.size();i++) {
-			diretorioDeMusicas.playlists.get(i).aceitarVisitor(new PlaylistVisitor());
+			diretorioDeMusicas.playlists.get(i).aceitarVisitor(this);
 		}
 	}
 	
-	void visitar(Playlist playlist) {
+	public void visitar(Playlist playlist) {
+		for(int i = 0;i<playlist.playlists.size();i++) {
+			if( (this.busca3min == true) && (playlist.estiloPrincipal == this.estilo) )
+				System.out.println(playlist.estiloPrincipal);
+			playlist.playlists.get(i).aceitarVisitor(this);
+		}
 		for(int i = 0;i<playlist.albuns.size();i++) {
-			playlist.albuns.get(i).aceitarVisitor(new AlbumVisitor());
+			if( (this.busca3min == true) && (playlist.estiloPrincipal == this.estilo) )
+				System.out.println(playlist.estiloPrincipal);
+			playlist.albuns.get(i).aceitarVisitor(this);
 		}
 	}
-
-	void visitar(Album album) {
+	
+	public void visitar(Album album) {
 		for(int i = 0;i<album.musicas.size();i++) {
-			album.musicas.get(i).aceitarVisitor(new MusicaVisitor());
-		}
-	}
-
-	void visitar(Musica musica) {
-		System.out.println(musica.nome+" "+musica.estilo+" "+musica.duracaoMin);
-	}
-}
-
-class ConcreteVisitorEstilo extends Visitor {
-	void visitar(DiretorioDeMusicas diretorioDeMusicas, String estilo) {
-		for(int i = 0;i<diretorioDeMusicas.playlists.size();i++) {
-			diretorioDeMusicas.playlists.get(i).aceitarVisitor(new PlaylistVisitor(), estilo);
+			album.musicas.get(i).aceitarVisitor(this);
 		}
 	}
 	
-	void visitar(Playlist playlist, String estilo) {
-		for(int i = 0;i<playlist.albuns.size();i++) {
-			playlist.albuns.get(i).aceitarVisitor(new AlbumVisitor(), estilo);
+	public void visitar(Musica musica) {
+		if(this.busca3min == true) {
+			if(musica.estilo == this.estilo && musica.duracaoMin > 3)
+				System.out.println(musica.nome+" "+musica.estilo+" "+musica.duracaoMin);
+		} else {
+			if(this.estilo == null)
+				System.out.println(musica.nome+" "+musica.estilo+" "+musica.duracaoMin);
+			else {
+				if(this.estilo == musica.estilo)
+					System.out.println(musica.nome+" "+musica.estilo+" "+musica.duracaoMin);
+			}
 		}
-	}
-	
-	void visitar(Album album, String estilo) {
-		for(int i = 0;i<album.musicas.size();i++) {
-			album.musicas.get(i).aceitarVisitor(new MusicaVisitor(), estilo);
-		}
-	}
-	
-	void visitar(Musica musica, String estilo) {
-		if(estilo == musica.estilo)
-			System.out.println(musica.nome+" "+musica.estilo+" "+musica.duracaoMin);
+		
 	}
 }
 
 // +++++++++++++++++++++++
 
-
-//~ interface ComponenteDiretorioDeMusicas {
-	//~ void printMusicas();
-//~ }
-
-class DiretorioDeMusicas /*implements ComponenteDiretorioDeMusicas*/ {
+class DiretorioDeMusicas {
 	ArrayList<Playlist> playlists = new ArrayList<Playlist>();
 	
-    //~ public void printMusicas() {
-		//~ for(int i=0;i< playlists.size();i++) {
-			//~ playlists.get(i).printMusicas();
-		//~ }
-    //~ }
-    
-    public void add(Playlist playlist) {
-        playlists.add(playlist);
-    }
-	
-    public void remove(Playlist playlist) {
-        playlists.remove(playlist);
-    }
-    
-    public void aceitarVisitor(Visitor visitor) {
+	public void aceitarVisitor(ConcreteVisitor visitor) {
         visitor.visitar(this);
     }
 	
+	void adicionaMusica(String nomePlaylist, String estiloPrincipal,String estiloSecundario,String nomeAlbum,String nomeBanda,String estiloAlbum, String nomeMusica, String estiloMusica, double duracaoMusicaMin) {
+		Musica m = new Musica();
+		m.nome = nomeMusica;
+		m.duracaoMin = duracaoMusicaMin;
+		m.estilo = estiloMusica;
+		
+		Album a = new Album();
+		a.nome = nomeAlbum;
+		a.estilo = estiloAlbum;
+		a.nomeBanda = nomeBanda;
+		
+		Playlist e = new Playlist();
+		e.nome = nomePlaylist;
+		e.estiloPrincipal = estiloPrincipal;
+		e.estiloSecundario	= estiloSecundario;
+		
+		a.add(m);
+		e.add(a);
+		
+		this.playlists.add(e);
+		
+	}
+	
 }
-
-//~ class DiretorioDeMusicasFolha implements ComponenteDiretorioDeMusicas {
-	//~ public void printMusicas() {
-		//~ System.out.println("aaa");
-    //~ }
-//~ }
-
 
 
 
