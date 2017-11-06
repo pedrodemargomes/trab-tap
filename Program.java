@@ -1,17 +1,17 @@
 import java.util.ArrayList;
 import java.util.Scanner; 
 
-class p {
+class Program {
 	public static void main(String[] args){
 
 		Streaming streaming = Streaming.getInstance();
 		
 		//System.out.println( streaming.diretorioDeMusicas.playlists.get(0).albuns.get(0).musicas.get(0).nome );
-		Playlist playlist1 = new Playlist("a","a","a");
-		Playlist playlist2 = new Playlist("b","b","b");
-		Playlist playlist3 = new Playlist("c","c","c");
-		Playlist playlist4 = new Playlist("d","d","d");
-		Playlist playlist5 = new Playlist("e","e","e");
+		Playlist playlist1 = new Playlist("Playlist 1","Hard rock","adasda");
+		Playlist playlist2 = new Playlist("Playlist 2","Disco","asdas");
+		Playlist playlist3 = new Playlist("Playlist 3","Reggae","gtgrr");
+		Playlist playlist4 = new Playlist("Playlist 4","Reggae","rttye");
+		Playlist playlist5 = new Playlist("Playlist 5","Reggae","ergerge");
 		
 		playlist1.add(playlist3);
 		playlist2.add(playlist5);
@@ -124,8 +124,18 @@ class p {
 		streaming.diretorioDeMusicas.add(playlist4);
 		
 		
-		ConcreteVisitorEstilo c = new ConcreteVisitorEstilo("Hard rock");
-		streaming.diretorioDeMusicas.aceitarVisitor(c);
+		ConcreteVisitorAll concreteAll = new ConcreteVisitorAll();
+		streaming.diretorioDeMusicas.aceitarVisitor(concreteAll);
+		
+		System.out.println("++++++++++++++++++++++++");
+		
+		ConcreteVisitorEstilo concreteEstilo = new ConcreteVisitorEstilo("Reggae");
+		streaming.diretorioDeMusicas.aceitarVisitor(concreteEstilo);
+		
+		System.out.println("++++++++++++++++++++++++");
+		
+		ConcreteVisitorEstiloTempo concreteEstiloTempo = new ConcreteVisitorEstiloTempo("Reggae");
+		streaming.diretorioDeMusicas.aceitarVisitor(concreteEstiloTempo);
 		
 	}
 }
